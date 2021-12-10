@@ -2,16 +2,16 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualizeMap(states, valMap, gridSize, terminationStates, actions):
+def visualizeMap(states, valMap, xSize, ySize, maxRewardStates, maxPenaltyStates, actions):
 
     rewardsList = []
     fig, ax = plt.subplots()
     for state in states:
-        if state not in terminationStates:
+        if state not in maxRewardStates and state not in maxPenaltyStates:
             # print(state, "------")
             for action in actions:
                 currState = np.array(state) + np.array(action)
-                if -1 < currState[0] < gridSize and -1 < currState[1] < gridSize: # If current state is within grid
+                if -1 < currState[0] < ySize and -1 < currState[1] < xSize: # If current state is within grid
                     rewardsList.append(valMap[currState[0]][currState[1]])
                     # print(currState)
 
@@ -21,7 +21,7 @@ def visualizeMap(states, valMap, gridSize, terminationStates, actions):
             # print('state', state)
             for actions2 in actions:
                 currState2 = np.array(state) + np.array(actions2)
-                if -1 < currState2[0] < gridSize and -1 < currState2[1] < gridSize:  # If current state is within grid
+                if -1 < currState2[0] < ySize and -1 < currState2[1] < xSize:  # If current state is within grid
                     # print('val', valMap[currState2[0]][currState2[1]])
                     # print('mystate', currState2)
                     if math.isclose(valMap[currState2[0]][currState2[1]], maxReward, abs_tol=0.1):
@@ -40,8 +40,8 @@ def visualizeMap(states, valMap, gridSize, terminationStates, actions):
 
             rewardsList.clear()
 
-    plt.xlim([-0.5, gridSize-0.5])
-    plt.ylim([-0.5, gridSize-0.5])
+    plt.xlim([-0.5, xSize-0.5])
+    plt.ylim([-0.5, ySize-0.5])
     plt.gca().invert_yaxis()
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position('top')

@@ -5,50 +5,57 @@ sns.set_style("darkgrid")
 
 import visualizeMap as vm
 
+maxRewardStates = [[0,0], [3, 3]]
+maxReward = 0
+maxPenaltyStates = [[]]
+maxPenalty = 0
+transitions = [[-1, 0], [0, 1], [1, 0], [0, -1]]   # up, right, down, left
 
-gamma = 1 # discounting rate
-rewardSize = -1
-gridSize = 4
-terminationStates = [[0,0], [gridSize-1, gridSize-1]]
-actions = [[-1, 0], [1, 0], [0, 1], [0, -1]]
-numIterations = 1000
+regReward = -1
 
+# startPoint1 = [1, 1]
+# startPoint2 = [3, 2]
+trials = 1000
+gamma = 1
+
+maxXSize = 7
+maxYSize = 8
 
 
 def actionRewardFunction(initialPosition, action):
-    if initialPosition in terminationStates:
+    if initialPosition in maxRewardStates:
         return initialPosition, 0
 
-    reward = rewardSize
+    reward = regReward
     finalPosition = np.array(initialPosition) + np.array(action)
-    if -1 in finalPosition or 4 in finalPosition:
+    if -1 in finalPosition or finalPosition[0] >= maxYSize or finalPosition[1] >= maxXSize:
         finalPosition = initialPosition
 
     return finalPosition, reward
 
 
 def main():
-    valueMap = np.zeros((gridSize, gridSize))
-    states = [[i, j] for i in range(gridSize) for j in range(gridSize)]
+    valueMap = np.zeros((maxYSize, maxXSize))
+    states = [[i, j] for i in range(maxYSize) for j in range(maxXSize)]
 
     # values of the value function at step 0
     print("Init value map: ")
     print(states)
 
     deltas = []
-    for it in range(numIterations):
+    for it in range(trials):
         copyValueMap = np.copy(valueMap)
         deltaState = []
         for state in states:
             weightedRewards = 0
-            for action in actions:
+            for action in transitions:
                 finalPosition, reward = actionRewardFunction(state, action)
-                weightedRewards += (1/len(actions))*(reward+(gamma*valueMap[finalPosition[0], finalPosition[1]]))
+                weightedRewards += (1/len(transitions))*(reward+(gamma*valueMap[finalPosition[0], finalPosition[1]]))
             deltaState.append(np.abs(copyValueMap[state[0], state[1]]-weightedRewards))
             copyValueMap[state[0], state[1]] = weightedRewards
         deltas.append(deltaState)
         valueMap = copyValueMap
-        if it in [0,1,2,9, 99, numIterations-1]:
+        if it in [0,1,2,9, 99, trials-1]:
             print("Iteration {}".format(it+1))
             print(valueMap)
             print("")
@@ -57,7 +64,7 @@ def main():
     plt.plot(deltas)
     plt.show()
 
-    vm.visualizeMap(states, valueMap, gridSize, terminationStates, actions)
+    vm.visualizeMap(states, valueMap, maxXSize, maxYSize, maxRewardStates, maxPenaltyStates, transitions)
 
 
 if __name__ == "__main__":
