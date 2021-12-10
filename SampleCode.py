@@ -5,26 +5,29 @@ sns.set_style("darkgrid")
 
 import visualizeMap as vm
 
-maxRewardStates = [[0,0], [3, 3]]
-maxReward = 0
-maxPenaltyStates = [[]]
-maxPenalty = 0
+maxRewardStates = [[1, 5]]
+maxReward = 1
+maxPenaltyStates = [[3,4], [3, 5]]
+maxPenalty = -1
 transitions = [[-1, 0], [0, 1], [1, 0], [0, -1]]   # up, right, down, left
 
-regReward = -1
+regReward = 0
 
 # startPoint1 = [1, 1]
 # startPoint2 = [3, 2]
 trials = 1000
 gamma = 1
 
-maxXSize = 7
-maxYSize = 8
+maxXSize = 6
+maxYSize = 4
 
 
 def actionRewardFunction(initialPosition, action):
     if initialPosition in maxRewardStates:
-        return initialPosition, 0
+        return initialPosition, maxReward
+
+    if initialPosition in maxPenaltyStates:
+        return initialPosition, maxPenalty
 
     reward = regReward
     finalPosition = np.array(initialPosition) + np.array(action)
@@ -44,7 +47,7 @@ def main():
 
     deltas = []
     for it in range(trials):
-        copyValueMap = np.copy(valueMap)
+        copyValueMap = valueMap #np.copy(valueMap)
         deltaState = []
         for state in states:
             weightedRewards = 0
