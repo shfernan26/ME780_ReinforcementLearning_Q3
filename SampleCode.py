@@ -67,7 +67,7 @@ def main():
     plt.plot(deltas)
     plt.show()
 
-    vm.visualizeMap(states, valueMap, maxXSize, maxYSize, maxRewardStates, maxPenaltyStates, transitions)
+    vm.visualizeMap(states, valueMap, maxXSize, maxYSize, maxRewardStates, maxPenaltyStates, transitions, startPoint=(2,3))
 
 
 if __name__ == "__main__":
