@@ -14,13 +14,13 @@ regReward = 0
 trials = 2  # 20
 gamma = 1
 lr = 0.5
-maxAttempts = 50
+maxAttempts = 100
 
 maxXSize = 4
 maxYSize = 6
 
 startPoint1 = [1, 1] # [y,x, action number to next state)
-startPoint2 = [3, 2]
+startPoint2 = [4, 4]
 start = 2  # Change depending on which start point you have
 
 if start == 1:
@@ -39,24 +39,21 @@ def initializeActionRewards(q_grid):
 
     return q_grid
 
+def updateGrid(qGrid, state):
+    for acState in qGrid:
+        if acState[0] == state[0] and acState[1] == state[1]:
+            return qGrid.index(acState)
+
 
 def getAction():
     return random.choice(transitions)
-
-def returnGridIndex(qGrid, targetState):
-    for acState in qGrid:
-        if acState[0] == targetState[0] and acState[1] == targetState[1]:
-            return qGrid.index(acState)
-    print('State not found in grid')
-    return Exception
-
 
 def getNextState(currState, qGrid):
 
     action = getAction()
     next_state = np.array(currState) + np.array(action)
     # Don't make action if out of bounds
-    while 0 in next_state or next_state[0] > maxYSize or next_state[1] > maxXSize:
+    while 0 in next_state or next_state[0] >= maxYSize or next_state[1] >= maxXSize:
         action = getAction()
         next_state = np.array(currState) + np.array(action)
 
@@ -83,15 +80,13 @@ def main():
     qGrid = initializeActionRewards(qGrid)
     print('mygrid', qGrid)
 
-    allTrialStateChange = []
     for trial in range(trials):
 
-        singleTrialStateChange = []
+
         path = []
         path.append((startPoint))
 
         # print('a', path)
-        pathReward = 0
         currAttempt = 0
 
         while currAttempt < maxAttempts:
@@ -103,11 +98,25 @@ def main():
                     if acState[0] == currState[0] and acState[1] == currState[1]:
                         acState[2] = maxReward
 
+                for state in reversed(path):
+                    for acState in qGrid:
+                        if acState[0] == state[0] and acState[1] == state[1]:
+                            currQVal = acState[2]
+                            reward = currQVal + lr*(gamma*maxReward-currQVal)
+                            qGrid = updateGrid(qGrid, state)
+
 
             elif (currState in maxPenaltyStates):
                 for acState in qGrid:
                     if acState[0] == currState[0] and acState[1] == currState[1]:
                         acState[2] = maxPenalty
+
+                for state in reversed(path):
+                    for acState in qGrid:
+                        if acState[0] == state[0] and acState[1] == state[1]:
+                            currQVal = acState[2]
+                            reward = currQVal + lr * (gamma * maxPenalty - currQVal)
+                            qGrid = updateGrid(qGrid, state)
 
             else:
                 # print('z')
@@ -115,50 +124,11 @@ def main():
                 # print(nextState)
                 path.append(list(nextState))
 
-        print('path', path)
-
-
-            # (path[-1][0:2])
-            # if path[-1][0:2] not
-
-        # while (path[-1] not in maxRewardStates) and (path[-1] not in maxPenaltyStates) and currAttempt <= maxAttempts:
-        #
-        #     currState = path[-1]
-        #     action = getAction()
-        #     nextState, pathReward = getNextState(currState, action)
-        #     path.append(list(nextState))
-        #
-        #
-        # for state in reversed(path):
-        #    qGrid[state[1]-1][state[0]-1] = pathReward
-        #
-        #    qVal = currQVal + lr*(gamma*reward - currQVal)
-        #    qGrid
-        #
-        # path.clear()
+        print(len(path))
+        print('path', path[0], path[10], path[-1])
 
 
 
-
-        # for state in states:
-        #     utility = 0
-        #
-        #     for action in transitions:
-        #         nextPosition, reward = getNextState(state, action)
-        #         nextStateProb = getProbability(transitions)
-        #         utility = utility + getUtility(nextStateProb, reward, gamma, utilityGrid, nextPosition[0]-1, nextPosition[1]-1)
-        #
-        #     singleTrialStateChange.append(np.abs(utilityGrid[state[0]-1, state[1]-1]-utility)) # Checking difference in new/old utility
-        #     utilityGrid[state[0]-1, state[1]-1] = utility # New utility map
-        #
-        # allTrialStateChange.append(singleTrialStateChange)
-
-    #     if trial in [0,1,2,trials-2, trials-1]:
-    #         plotUtilityGrid(utilityGrid, trial)
-    #
-    # plt.figure(figsize=(20, 10))
-    # plt.plot(allTrialStateChange)
-    # plt.show()
     # vm.visualizeMap(states, utilityGrid, maxXSize, maxYSize, maxRewardStates, maxPenaltyStates, transitions, startPoint)
 
 
